@@ -8,7 +8,7 @@ import org.objectweb.asm.ClassVisitor
 
 abstract class TimeCostTransform: AsmClassVisitorFactory<InstrumentationParameters.None> {
     override fun createClassVisitor(classContext: ClassContext, nextClassVisitor: ClassVisitor): ClassVisitor {
-        return nextClassVisitor
+        return TimeCostClassVisitor(nextClassVisitor)
     }
 
     override fun isInstrumentable(classData: ClassData): Boolean {
