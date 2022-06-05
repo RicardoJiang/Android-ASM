@@ -1,7 +1,7 @@
 package com.zj.android_asm;
 
 public class TimeLog {
-    public static final void beforeMethod() {
+    public static final void beforeMethod(String methodName) {
         System.out.println("方法开始运行...");
     }
 

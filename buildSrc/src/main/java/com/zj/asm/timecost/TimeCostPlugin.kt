@@ -13,7 +13,7 @@ class TimeCostPlugin : Plugin<Project> {
             variant.instrumentation.transformClassesWith(TimeCostTransform::class.java,
                     InstrumentationScope.PROJECT) {}
             variant.instrumentation.setAsmFramesComputationMode(
-                    FramesComputationMode.COMPUTE_FRAMES_FOR_ALL_CLASSES
+                    FramesComputationMode.COMPUTE_FRAMES_FOR_INSTRUMENTED_METHODS
             )
         }
     }

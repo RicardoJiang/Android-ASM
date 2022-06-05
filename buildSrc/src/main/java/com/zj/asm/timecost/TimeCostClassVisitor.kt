@@ -17,16 +17,15 @@ class TimeCostClassVisitor(nextVisitor: ClassVisitor) : ClassVisitor(Opcodes.ASM
         val methodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions)
         val newMethodVisitor =
             object : AdviceAdapter(Opcodes.ASM5, methodVisitor, access, name, descriptor) {
+
                 @Override
                 override fun onMethodEnter() {
                     // 方法开始
-                    if (name != "beforeMethod" && name != "afterMethod") {
+                    if (isNeedVisiMethod(name)) {
+                        mv.visitLdcInsn(name);
                         mv.visitMethodInsn(
-                            INVOKESTATIC,
-                            "com/zj/android_asm/TimeLog",
-                            "beforeMethod",
-                            "()V",
-                            false
+                            INVOKESTATIC, "com/zj/android_asm/TimeCache", "putStartTime",
+                            "(Ljava/lang/String;)V", false
                         );
                     }
                     super.onMethodEnter();
@@ -35,18 +34,20 @@ class TimeCostClassVisitor(nextVisitor: ClassVisitor) : ClassVisitor(Opcodes.ASM
                 @Override
                 override fun onMethodExit(opcode: Int) {
                     // 方法结束
-                    if (name != "beforeMethod" && name != "afterMethod") {
+                    if (isNeedVisiMethod(name)) {
+                        mv.visitLdcInsn(name);
                         mv.visitMethodInsn(
-                            INVOKESTATIC,
-                            "com/zj/android_asm/TimeLog",
-                            "afterMethod",
-                            "()V",
-                            false
+                            INVOKESTATIC, "com/zj/android_asm/TimeCache", "putEndTime",
+                            "(Ljava/lang/String;)V", false
                         );
                     }
                     super.onMethodExit(opcode);
                 }
             }
         return newMethodVisitor
+    }
+
+    private fun isNeedVisiMethod(name: String?):Boolean {
+        return name != "putStartTime" && name != "putEndTime" && name != "<clinit>" && name != "printlnTime" && name != "<init>"
     }
 }
