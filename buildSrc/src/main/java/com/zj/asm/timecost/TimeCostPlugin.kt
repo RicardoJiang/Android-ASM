@@ -11,9 +11,9 @@ class TimeCostPlugin : Plugin<Project> {
         val androidComponents = project.extensions.getByType(AndroidComponentsExtension::class.java)
         androidComponents.onVariants { variant ->
             variant.instrumentation.transformClassesWith(TimeCostTransform::class.java,
-                    InstrumentationScope.ALL) {}
+                    InstrumentationScope.PROJECT) {}
             variant.instrumentation.setAsmFramesComputationMode(
-                    FramesComputationMode.COMPUTE_FRAMES_FOR_INSTRUMENTED_METHODS
+                    FramesComputationMode.COMPUTE_FRAMES_FOR_ALL_CLASSES
             )
         }
     }

@@ -6,11 +6,11 @@ import java.util.Map;
 public class TimeCache {
     private static volatile TimeCache mInstance;
 
-    private static final byte[] mLock = new byte[0];
+    private static byte[] mLock = new byte[0];
 
-    private final Map<String, Long> mStartTimes = new HashMap<>();
+    private Map<String, Long> mStartTimes = new HashMap<>();
 
-    private final Map<String, Long> mEndTimes = new HashMap<>();
+    private Map<String, Long> mEndTimes = new HashMap<>();
 
     private TimeCache() {}
 
@@ -40,4 +40,5 @@ public class TimeCache {
         System.out.println("className ="+ className + "，time consuming " + currTime+ "  ns");
     }
 }
+
 
