@@ -3,6 +3,9 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+import com.zj.asm.timecost.TimeCostPlugin
+apply plugin: TimeCostPlugin
+
 android {
     compileSdk 32
 

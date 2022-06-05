@@ -11,7 +11,7 @@ repositories {
 
 dependencies {
     implementation(gradleApi())
-    compileOnly("com.android.tools.build:gradle:7.2.0")
+    implementation("com.android.tools.build:gradle:7.2.0")
     compileOnly("commons-io:commons-io:2.6")
     compileOnly("commons-codec:commons-codec:1.15")
     compileOnly("org.ow2.asm:asm-commons:9.2")
