@@ -1,12 +1,13 @@
 package com.zj.asm.timecost
 
+import com.android.build.api.instrumentation.ClassContext
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import org.objectweb.asm.commons.AdviceAdapter
 
-class TimeCostClassVisitor(nextVisitor: ClassVisitor) : ClassVisitor(Opcodes.ASM5, nextVisitor) {
+class TimeCostClassVisitor(nextVisitor: ClassVisitor,private val className: String) : ClassVisitor(Opcodes.ASM5, nextVisitor) {
     override fun visitMethod(
         access: Int,
         name: String?,
@@ -23,9 +24,10 @@ class TimeCostClassVisitor(nextVisitor: ClassVisitor) : ClassVisitor(Opcodes.ASM
                     // 方法开始
                     if (isNeedVisiMethod(name)) {
                         mv.visitLdcInsn(name);
+                        mv.visitLdcInsn(className)
                         mv.visitMethodInsn(
                             INVOKESTATIC, "com/zj/android_asm/TimeCache", "putStartTime",
-                            "(Ljava/lang/String;)V", false
+                            "(Ljava/lang/String;Ljava/lang/String;)V", false
                         );
                     }
                     super.onMethodEnter();
@@ -36,9 +38,10 @@ class TimeCostClassVisitor(nextVisitor: ClassVisitor) : ClassVisitor(Opcodes.ASM
                     // 方法结束
                     if (isNeedVisiMethod(name)) {
                         mv.visitLdcInsn(name);
+                        mv.visitLdcInsn(className)
                         mv.visitMethodInsn(
                             INVOKESTATIC, "com/zj/android_asm/TimeCache", "putEndTime",
-                            "(Ljava/lang/String;)V", false
+                            "(Ljava/lang/String;Ljava/lang/String;)V", false
                         );
                     }
                     super.onMethodExit(opcode);

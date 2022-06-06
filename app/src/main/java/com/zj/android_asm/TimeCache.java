@@ -8,21 +8,22 @@ public class TimeCache {
 
     public static Map<String, Long> mEndTimes = new HashMap<>();
 
-    public static void putStartTime(String methodName) {
-        mStartTimes.put(methodName, System.currentTimeMillis());
+    public static void putStartTime(String methodName, String className) {
+        mStartTimes.put(methodName + "," + className, System.currentTimeMillis());
     }
 
-    public static void putEndTime(String methodName) {
-        mEndTimes.put(methodName, System.currentTimeMillis());
-        printlnTime(methodName);
+    public static void putEndTime(String methodName, String className) {
+        mEndTimes.put(methodName + "," + className, System.currentTimeMillis());
+        printlnTime(methodName,className);
     }
 
-    public static void printlnTime(String methodName) {
-        if (!mStartTimes.containsKey(methodName) || !mEndTimes.containsKey(methodName)) {
-            System.out.println("className ="+ methodName + "not exist");
+    public static void printlnTime(String methodName,String className) {
+        String key = methodName + "," + className;
+        if (!mStartTimes.containsKey(key) || !mEndTimes.containsKey(key)) {
+            System.out.println("className =" + key + "not exist");
         }
-        long currTime = mEndTimes.get(methodName) - mStartTimes.get(methodName);
-        System.out.println("methodName ="+ methodName + "，time consuming " + currTime+ "  ms");
+        long currTime = mEndTimes.get(key) - mStartTimes.get(key);
+        System.out.println("className =" + className +" methodName =" + methodName + "，time consuming " + currTime + "  ms");
     }
 }
 

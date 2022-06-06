@@ -21,5 +21,10 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
+        test()
+    }
+
+    private fun test(){
+        Thread.sleep(1000)
     }
 }

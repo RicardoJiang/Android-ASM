@@ -8,10 +8,10 @@ import org.objectweb.asm.ClassVisitor
 
 abstract class TimeCostTransform: AsmClassVisitorFactory<InstrumentationParameters.None> {
     override fun createClassVisitor(classContext: ClassContext, nextClassVisitor: ClassVisitor): ClassVisitor {
-        return TimeCostClassVisitor(nextClassVisitor)
+        return TimeCostClassVisitor(nextClassVisitor,classContext.currentClassData.className)
     }
 
     override fun isInstrumentable(classData: ClassData): Boolean {
-        return true
+       return (classData.className.contains("com.zj.android_asm"))
     }
 }
