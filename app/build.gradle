@@ -3,8 +3,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
-import com.zj.asm.timecost.TimeCostPlugin
-apply plugin: TimeCostPlugin
+import com.zj.asm.methodrecord.MethodRecordPlugin
+apply plugin: MethodRecordPlugin
 
 android {
     compileSdk 32
@@ -50,4 +50,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     implementation 'org.ow2.asm:asm:9.3'
     implementation 'org.ow2.asm:asm-commons:9.3'
+    implementation 'com.google.code.gson:gson:2.9.0'
 }

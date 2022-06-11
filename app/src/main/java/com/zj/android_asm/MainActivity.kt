@@ -1,14 +1,7 @@
 package com.zj.android_asm
 
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
-import android.view.MenuItem
 import com.zj.android_asm.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -21,10 +14,15 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
-        test()
+        test(100)
+        sum(1, 2)
     }
 
-    private fun test(){
-        Thread.sleep(1000)
+    private fun test(time: Long) {
+        Thread.sleep(time)
+    }
+
+    private fun sum(i: Int, j: Int): Int {
+        return i + j
     }
 }
