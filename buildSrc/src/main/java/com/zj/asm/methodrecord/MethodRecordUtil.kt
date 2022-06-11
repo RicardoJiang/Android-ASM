@@ -133,6 +133,89 @@ object MethodRecordUtil {
         }
     }
 
+    fun loadReturnData(mv: MethodVisitor,methodDesc:String){
+        val methodType = Type.getMethodType(methodDesc)
+        if (methodType.returnType.size == 1) {
+            mv.visitInsn(AdviceAdapter.DUP);
+        } else {
+            mv.visitInsn(AdviceAdapter.DUP2);
+        }
+        when(methodType.returnType){
+            Type.INT_TYPE -> {
+                mv.visitMethodInsn(
+                    AdviceAdapter.INVOKESTATIC,
+                    "java/lang/Integer",
+                    "valueOf",
+                    "(I)Ljava/lang/Integer;",
+                    false
+                )
+            }
+            Type.CHAR_TYPE -> {
+                mv.visitMethodInsn(
+                    AdviceAdapter.INVOKESTATIC,
+                    "java/lang/Character",
+                    "valueOf",
+                    "(C)Ljava/lang/Character;",
+                    false
+                )
+            }
+            Type.BYTE_TYPE -> {
+                mv.visitMethodInsn(
+                    AdviceAdapter.INVOKESTATIC,
+                    "java/lang/Byte",
+                    "valueOf",
+                    "(B)Ljava/lang/Byte;",
+                    false
+                )
+            }
+            Type.BOOLEAN_TYPE -> {
+                mv.visitMethodInsn(
+                    AdviceAdapter.INVOKESTATIC,
+                    "java/lang/Boolean",
+                    "valueOf",
+                    "(Z)Ljava/lang/Boolean;",
+                    false
+                )
+            }
+            Type.SHORT_TYPE -> {
+                mv.visitMethodInsn(
+                    AdviceAdapter.INVOKESTATIC,
+                    "java/lang/Short",
+                    "valueOf",
+                    "(S)Ljava/lang/Short;",
+                    false
+                )
+            }
+            Type.FLOAT_TYPE -> {
+                mv.visitMethodInsn(
+                    AdviceAdapter.INVOKESTATIC,
+                    "java/lang/Float",
+                    "valueOf",
+                    "(F)Ljava/lang/Float;",
+                    false
+                )
+            }
+            Type.LONG_TYPE -> {
+                mv.visitMethodInsn(
+                    AdviceAdapter.INVOKESTATIC,
+                    "java/lang/Long",
+                    "valueOf",
+                    "(J)Ljava/lang/Long;",
+                    false
+                )
+            }
+            Type.DOUBLE_TYPE -> {
+                mv.visitMethodInsn(
+                    AdviceAdapter.INVOKESTATIC,
+                    "java/lang/Double",
+                    "valueOf",
+                    "(D)Ljava/lang/Double;",
+                    false
+                )
+            }
+        }
+    }
+
     fun onMethodEnter(
         mv: MethodVisitor,
         className: String,
@@ -145,6 +228,22 @@ object MethodRecordUtil {
         mv.visitMethodInsn(
             AdviceAdapter.INVOKESTATIC, "com/zj/android_asm/MethodRecorder", "onMethodEnter",
             "(Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V", false
-        );
+        )
+    }
+
+    fun onMethodExit(
+        mv: MethodVisitor,
+        className: String,
+        name: String?
+    ){
+        mv.visitLdcInsn(className)
+        mv.visitLdcInsn(name)
+        mv.visitMethodInsn(
+            AdviceAdapter.INVOKESTATIC,
+            "com/zj/android_asm/MethodRecorder",
+            "onMethodExit",
+            "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V",
+            false
+        )
     }
 }

@@ -3,6 +3,7 @@ package com.zj.asm.methodrecord
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.Type
 import org.objectweb.asm.commons.AdviceAdapter
 
 class MethodRecordClassVisitor(nextVisitor: ClassVisitor, private val className: String) :
@@ -38,14 +39,26 @@ class MethodRecordClassVisitor(nextVisitor: ClassVisitor, private val className:
                 @Override
                 override fun onMethodExit(opcode: Int) {
                     // 方法结束
-//                    if (isNeedVisiMethod(name)) {
-//                        mv.visitLdcInsn(name);
-//                        mv.visitLdcInsn(className)
-//                        mv.visitMethodInsn(
-//                            INVOKESTATIC, "com/zj/android_asm/TimeCache", "putEndTime",
-//                            "(Ljava/lang/String;Ljava/lang/String;)V", false
-//                        );
-//                    }
+                    if (isNeedVisiMethod()) {
+                        if ((opcode in IRETURN..RETURN) || opcode == ATHROW) {
+                            when (opcode) {
+                                in IRETURN..DRETURN -> {
+                                    MethodRecordUtil.loadReturnData(mv,methodDesc)
+                                    MethodRecordUtil.onMethodExit(mv, className, name)
+                                }
+                                ARETURN -> {
+                                    mv.visitInsn(DUP)
+                                    MethodRecordUtil.onMethodExit(mv, className, name)
+                                }
+                                RETURN -> {
+                                    mv.visitLdcInsn("void")
+                                    MethodRecordUtil.onMethodExit(mv, className, name)
+                                }
+                                else -> {
+                                }
+                            }
+                        }
+                    }
                     super.onMethodExit(opcode);
                 }
             }
