@@ -133,12 +133,18 @@ object MethodRecordUtil {
         }
     }
 
-    fun onMethodEnter(mv: MethodVisitor, name: String?, parametersIdentifier: Int) {
+    fun onMethodEnter(
+        mv: MethodVisitor,
+        className: String,
+        name: String?,
+        parametersIdentifier: Int
+    ) {
+        mv.visitLdcInsn(className)
         mv.visitLdcInsn(name)
         mv.visitVarInsn(AdviceAdapter.ALOAD, parametersIdentifier);
         mv.visitMethodInsn(
             AdviceAdapter.INVOKESTATIC, "com/zj/android_asm/MethodRecorder", "onMethodEnter",
-            "(Ljava/lang/String;Ljava/util/List;)V", false
+            "(Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V", false
         );
     }
 }

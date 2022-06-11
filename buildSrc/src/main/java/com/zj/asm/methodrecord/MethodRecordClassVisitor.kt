@@ -3,9 +3,7 @@ package com.zj.asm.methodrecord
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
-import org.objectweb.asm.Type
 import org.objectweb.asm.commons.AdviceAdapter
-import java.util.regex.Pattern
 
 class MethodRecordClassVisitor(nextVisitor: ClassVisitor, private val className: String) :
     ClassVisitor(Opcodes.ASM5, nextVisitor) {
@@ -32,7 +30,7 @@ class MethodRecordClassVisitor(nextVisitor: ClassVisitor, private val className:
                             parametersIdentifier,
                             access
                         )
-                        MethodRecordUtil.onMethodEnter(mv, name, parametersIdentifier)
+                        MethodRecordUtil.onMethodEnter(mv, className, name, parametersIdentifier)
                     }
                     super.onMethodEnter();
                 }
