@@ -3,7 +3,6 @@ package com.zj.asm.methodrecord
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
-import org.objectweb.asm.Type
 import org.objectweb.asm.commons.AdviceAdapter
 
 class MethodRecordClassVisitor(nextVisitor: ClassVisitor, private val className: String) :
@@ -23,17 +22,13 @@ class MethodRecordClassVisitor(nextVisitor: ClassVisitor, private val className:
                 override fun onMethodEnter() {
                     // 方法开始
                     if (isNeedVisiMethod() && descriptor != null) {
-                        val parameterTypeList = MethodRecordUtil.getParameterTypeList(descriptor)
                         val parametersIdentifier = MethodRecordUtil.newParameterArrayList(mv, this)
                         MethodRecordUtil.fillParameterArray(
-                            parameterTypeList,
-                            mv,
-                            parametersIdentifier,
-                            access
+                            methodDesc, mv, parametersIdentifier, access
                         )
                         MethodRecordUtil.onMethodEnter(mv, className, name, parametersIdentifier)
                     }
-                    super.onMethodEnter();
+                    super.onMethodEnter()
                 }
 
                 @Override
@@ -43,16 +38,16 @@ class MethodRecordClassVisitor(nextVisitor: ClassVisitor, private val className:
                         if ((opcode in IRETURN..RETURN) || opcode == ATHROW) {
                             when (opcode) {
                                 in IRETURN..DRETURN -> {
-                                    MethodRecordUtil.loadReturnData(mv,methodDesc)
-                                    MethodRecordUtil.onMethodExit(mv, className, name)
+                                    MethodRecordUtil.loadReturnData(mv, methodDesc)
+                                    MethodRecordUtil.onMethodExit(mv, className, name, methodDesc)
                                 }
                                 ARETURN -> {
                                     mv.visitInsn(DUP)
-                                    MethodRecordUtil.onMethodExit(mv, className, name)
+                                    MethodRecordUtil.onMethodExit(mv, className, name, methodDesc)
                                 }
                                 RETURN -> {
                                     mv.visitLdcInsn("void")
-                                    MethodRecordUtil.onMethodExit(mv, className, name)
+                                    MethodRecordUtil.onMethodExit(mv, className, name, methodDesc)
                                 }
                                 else -> {
                                 }
@@ -66,6 +61,7 @@ class MethodRecordClassVisitor(nextVisitor: ClassVisitor, private val className:
     }
 
     private fun isNeedVisiMethod(): Boolean {
-        return className.contains("MethodRecorder").not()
+        val filterClassList = listOf("MethodRecordItem", "MethodRecorder")
+        return filterClassList.none { className.contains(it) }
     }
 }

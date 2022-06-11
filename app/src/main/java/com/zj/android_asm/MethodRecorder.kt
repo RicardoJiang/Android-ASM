@@ -1,25 +1,33 @@
 package com.zj.android_asm
 
 import android.util.Log
-import com.google.gson.Gson
-import java.util.HashMap
 
 object MethodRecorder {
-    private val mStartTimes: Map<String, Long> = HashMap()
+    private val mMethodRecordMap = HashMap<String, MethodRecordItem>()
 
     @JvmStatic
     fun onMethodEnter(className: String, methodName: String, parameterList: List<Any?>?) {
-        val noNullParameterList = parameterList?.filterNotNull() ?: emptyList<Any>()
-        Log.i("tiaoshi", "className:" + className)
-        Log.i("tiaoshi", "here start:$methodName")
-        noNullParameterList.forEach {
-            Log.i("tiaoshi", "here parameter:" + it.toString())
-        }
-//        Log.i("tiaoshi", "here parameter:" + Gson().toJson(noNullParameterList))
+        val key = "${className},${methodName}"
+        val startTime = System.currentTimeMillis()
+        val list = parameterList?.filterNotNull() ?: emptyList()
+        mMethodRecordMap[key] = MethodRecordItem(startTime, list)
     }
 
     @JvmStatic
-    fun onMethodExit(response: Any?=null,className: String, methodName: String) {
-        Log.i("tiaoshi", ("response $methodName:" + response?.toString()))
+    fun onMethodExit(
+        response: Any? = null,
+        className: String,
+        methodName: String,
+        parameterTypes: String,
+        returnType: String
+    ) {
+        val key = "${className},${methodName}"
+        mMethodRecordMap[key]?.let {
+            val parameters = it.parameterList.joinToString(",")
+            val duration = System.currentTimeMillis() - it.startTime
+            val result =
+                "类名：$className \n方法名：$methodName \n参数类型：[$parameterTypes] \n入参：[$parameters] \n返回类型：$returnType \n返回值：$response \n耗时：$duration ms \n"
+            Log.i("methodRecord", result)
+        }
     }
 }

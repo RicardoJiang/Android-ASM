@@ -36,92 +36,22 @@ object MethodRecordUtil {
     }
 
     fun fillParameterArray(
-        parameterTypeList: List<String>,
+        methodDesc: String,
         mv: MethodVisitor,
         parametersIdentifier: Int,
         access: Int
     ) {
-        var cursor = if ((Opcodes.ACC_STATIC and access) == 0) 0 else -1
-        parameterTypeList.forEach {
-            val type = it
+        val isStatic = (access and Opcodes.ACC_STATIC) != 0
+        var cursor = if (isStatic) 0 else 1
+        val methodType = Type.getMethodType(methodDesc)
+        methodType.argumentTypes.forEach {
             mv.visitVarInsn(AdviceAdapter.ALOAD, parametersIdentifier)
-            if ("Z" == type) {
-                mv.visitVarInsn(AdviceAdapter.ILOAD, ++cursor)  //获取对应的参数
-                mv.visitMethodInsn(
-                    AdviceAdapter.INVOKESTATIC,
-                    "java/lang/Boolean",
-                    "valueOf",
-                    "(Z)Ljava/lang/Boolean;",
-                    false
-                )
-            } else if ("C" == type) {
-                mv.visitVarInsn(AdviceAdapter.ILOAD, ++cursor)  //获取对应的参数
-                mv.visitMethodInsn(
-                    AdviceAdapter.INVOKESTATIC,
-                    "java/lang/Character",
-                    "valueOf",
-                    "(C)Ljava/lang/Character;",
-                    false
-                )
-            } else if ("B" == type) {
-                mv.visitVarInsn(AdviceAdapter.ILOAD, ++cursor)  //获取对应的参数
-                mv.visitMethodInsn(
-                    AdviceAdapter.INVOKESTATIC,
-                    "java/lang/Byte",
-                    "valueOf",
-                    "(B)Ljava/lang/Byte;",
-                    false
-                )
-            } else if ("S" == type) {
-                mv.visitVarInsn(AdviceAdapter.ILOAD, ++cursor)  //获取对应的参数
-                mv.visitMethodInsn(
-                    AdviceAdapter.INVOKESTATIC,
-                    "java/lang/Short",
-                    "valueOf",
-                    "(S)Ljava/lang/Short;",
-                    false
-                )
-            } else if ("I" == type) {
-                mv.visitVarInsn(AdviceAdapter.ILOAD, ++cursor)  //获取对应的参数
-                mv.visitMethodInsn(
-                    AdviceAdapter.INVOKESTATIC,
-                    "java/lang/Integer",
-                    "valueOf",
-                    "(I)Ljava/lang/Integer;",
-                    false
-                )
-            } else if ("F" == type) {
-                mv.visitVarInsn(AdviceAdapter.FLOAD, ++cursor)  //获取对应的参数
-                mv.visitMethodInsn(
-                    AdviceAdapter.INVOKESTATIC,
-                    "java/lang/Float",
-                    "valueOf",
-                    "(F)Ljava/lang/Float;",
-                    false
-                )
-            } else if ("J" == type) {
-                mv.visitVarInsn(AdviceAdapter.LLOAD, ++cursor)  //获取对应的参数
-                mv.visitMethodInsn(
-                    AdviceAdapter.INVOKESTATIC,
-                    "java/lang/Long",
-                    "valueOf",
-                    "(J)Ljava/lang/Long;",
-                    false
-                )
-            } else if ("D" == type) {
-                cursor += 2
-                mv.visitVarInsn(AdviceAdapter.DLOAD, cursor)  //获取对应的参数
-                mv.visitMethodInsn(
-                    AdviceAdapter.INVOKESTATIC,
-                    "java/lang/Double",
-                    "valueOf",
-                    "(D)Ljava/lang/Double;",
-                    false
-                )
-            } else {
-                ++cursor
-                mv.visitVarInsn(AdviceAdapter.ALOAD, cursor)  //获取对应的参数
+            val opcode = it.getOpcode(Opcodes.ILOAD)
+            mv.visitVarInsn(opcode, cursor)
+            if (it.sort >= Type.BOOLEAN && it.sort <= Type.DOUBLE) {
+                typeCastToObject(mv, it)
             }
+            cursor += it.size
             mv.visitMethodInsn(
                 AdviceAdapter.INVOKEINTERFACE,
                 "java/util/List",
@@ -133,14 +63,18 @@ object MethodRecordUtil {
         }
     }
 
-    fun loadReturnData(mv: MethodVisitor,methodDesc:String){
+    fun loadReturnData(mv: MethodVisitor, methodDesc: String) {
         val methodType = Type.getMethodType(methodDesc)
         if (methodType.returnType.size == 1) {
-            mv.visitInsn(AdviceAdapter.DUP);
+            mv.visitInsn(AdviceAdapter.DUP)
         } else {
-            mv.visitInsn(AdviceAdapter.DUP2);
+            mv.visitInsn(AdviceAdapter.DUP2)
         }
-        when(methodType.returnType){
+        typeCastToObject(mv, methodType.returnType)
+    }
+
+    private fun typeCastToObject(mv: MethodVisitor, type: Type) {
+        when (type) {
             Type.INT_TYPE -> {
                 mv.visitMethodInsn(
                     AdviceAdapter.INVOKESTATIC,
@@ -224,7 +158,7 @@ object MethodRecordUtil {
     ) {
         mv.visitLdcInsn(className)
         mv.visitLdcInsn(name)
-        mv.visitVarInsn(AdviceAdapter.ALOAD, parametersIdentifier);
+        mv.visitVarInsn(AdviceAdapter.ALOAD, parametersIdentifier)
         mv.visitMethodInsn(
             AdviceAdapter.INVOKESTATIC, "com/zj/android_asm/MethodRecorder", "onMethodEnter",
             "(Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V", false
@@ -234,15 +168,21 @@ object MethodRecordUtil {
     fun onMethodExit(
         mv: MethodVisitor,
         className: String,
-        name: String?
-    ){
+        name: String?,
+        methodDesc: String,
+    ) {
+        val methodType = Type.getMethodType(methodDesc)
+        val parameterTypes = methodType.argumentTypes.joinToString(",") { it.descriptor }
+        val returnType = methodType.returnType.descriptor
         mv.visitLdcInsn(className)
         mv.visitLdcInsn(name)
+        mv.visitLdcInsn(parameterTypes)
+        mv.visitLdcInsn(returnType)
         mv.visitMethodInsn(
             AdviceAdapter.INVOKESTATIC,
             "com/zj/android_asm/MethodRecorder",
             "onMethodExit",
-            "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V",
+            "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
             false
         )
     }
